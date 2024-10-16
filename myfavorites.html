@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyFavorites|Conch</title>
+    <link rel="icon" href="./material/logo/conch.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+    <style>
+        body {
+        background-color:rgb(241, 240, 197);
+        /* 設置整個頁面的背景為黑色 */
+        
+        /* 設置文字顏色為白色 */
+        margin: 0;
+        /* 移除預設的頁面外邊距 */
+        height: 100vh;
+        /* 設置頁面高度為100%視窗高度 */
+        display: flex;
+        flex-direction: column;
+        
+    }
+        /* 標題列 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10px;
+            background-color: rgb(75, 82, 98) ;/* 可以根據需要更改背景顏色 */
+        }
+
+        .header img {
+        margin-left: 20px;
+          width: 100px;
+          height: auto;
+        /* 根據需要調整圖片高度 */
+        }
+
+        .header-right {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-right a {
+            text-decoration: none;
+            color:rgb(3, 12, 36); /* 可以根據需要更改文字顏色 */
+            font-size: 16px;
+        }
+
+        /* 主要內容區域 */
+        .main-content {
+            flex: 1; /* 使主要內容區域擴展以填滿剩餘空間 */
+            background-color: rgb(241, 240, 197); /* 設置主要內容區域背景為黑色 */
+            color:rgb(6, 24, 68); /* 設置文字顏色為白色 */
+            width: 100%; 
+            
+        }
+
+        .mainfgbg {
+        background-image: linear-gradient(to bottom, rgba(75, 82, 98,.67), rgba(0, 0, 0, 0)),
+            url("./material/img/postcard/");
+        background-size: cover;
+        background-position: right 0%;
+        }
+
+        /* 歌曲圖片檔 */
+        .songimg {
+        margin-left: 20%;
+        width: 60%;
+        height: auto;
+        padding: 5%;
+        }
+        /* 音樂播放器容器 */
+
+        .audio-player {
+            background-color: transparent;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            width: 300px;
+        }
+
+        .fontsize{
+            font-size: 12px;
+            padding: 20px;
+        }
+        </style>
+        
+</head>
+<body>
+    <div class="header">
+        <div>
+            <img src="./material/logo/logo.png">
+        </div>
+        <div class="header-right">
+            <a href="./music.html">Home</a>
+            <a href="#">Music</a>
+            <a href="./myfavorites.html">My Playlist</a>
+            <a href="./login.html">Log in</a>
+        </div>
+    </div>
+    <div class="main-content  ">
+        <div class="row mainfgbg">
+                <div class="col-6 p-5">
+    
+                </div>
+                <div class="col-6 p-5 pt-5">
+                    <h1><svg class="svg1" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-suit-heart-fill" viewBox="0 0 16 16">
+                        <path
+                          d="M4 1c2.21 0 4 1.755 4 3.92C8 2.755 9.79 1 12 1s4 1.755 4 3.92c0 3.263-3.234 4.414-7.608 9.608a.513.513 0 0 1-.784 0C3.234 9.334 0 8.183 0 4.92 0 2.755 1.79 1 4 1" />
+                      </svg>
+                        MyFavoritesList</h1>
+                </div>
+            </div>
+        
+    <!-- 新增一個表格標籤 id為musictable 表格內部有標籤行 -->
+        <table id="musicTable">
+             <tr>
+                <td width="15%"><span >
+                    <!-- <img class="songimg" src="./material/img/songcard/folk03.png"></span></td> -->
+                <td width="10%">
+                    <div class="audio-player">
+                        <!-- <audio class="audio" src="./material/music/Owls - Lish Grooves.mp3"></audio> -->
+                        <div class="controls-container">
+                            <!-- <button class="play-pause">&#9658;</button> -->
+                            <div class="progress-container">
+                                <div class="progress-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-size: 12px;"></td>
+                <td style="font-size: 12px;"></td>
+                <td style="font-size: 12px;"></td>
+                
+            </tr> 
+        </table>
+    </div>
+    
+    <script>
+        // 存储当前播放的音频元素
+        var currentAudio = null;
+
+        // 切换播放和暂停，并确保只有一首歌在播放
+        function togglePlayPause(event) {
+            var audioPlayer = event.target.closest('.audio-player');
+            var audio = audioPlayer.querySelector('.audio');
+            var playPauseButton = audioPlayer.querySelector('.play-pause');
+            var progressBar = audioPlayer.querySelector('.progress-bar');
+
+            // 如果当前有播放的音频且不是点击的音频，先暂停它
+            if (currentAudio && currentAudio !== audio) {
+                currentAudio.pause();
+                currentAudio.closest('.audio-player').querySelector('.play-pause').innerHTML = '&#9658;';
+            }
+
+            // 切换当前点击的音频播放/暂停状态
+            if (audio.paused) {
+                audio.play();
+                playPauseButton.innerHTML = '&#10074;&#10074;'; // 暂停图标
+                currentAudio = audio; // 更新当前播放的音频
+            } else {
+                audio.pause();
+                playPauseButton.innerHTML = '&#9658;'; // 播放图标
+                currentAudio = null; // 清除当前播放的音频
+            }
+
+            // 更新进度条
+            audio.addEventListener('timeupdate', function () {
+                var progress = (audio.currentTime / audio.duration) * 100;
+                progressBar.style.width = progress + '%';
+            });
+
+            // 音频结束时重置按钮
+            audio.addEventListener('ended', function () {
+                playPauseButton.innerHTML = '&#9658;'; // 播放图标
+                currentAudio = null; // 清除当前播放的音频
+            });
+        }
+
+       
+        
+          //’展示音樂資料‘方程式
+        function displayMusicData(){
+        //從本地倉庫取得‘日本’資料到變數y
+        let y =localStorage.getItem('japan');
+        if(y){
+            //並將y解析成Json檔的陣列,回復成物件型態
+            let z=JSON.parse(y);
+            //抓取標籤是table且id為musicTable的元素 讓後續方程式作用在這個表格上
+            let table=document.getElementById('musicTable');
+            //迴圈foreach來刷'z'陣列資料中每個item
+            z.forEach(function(item) {
+            //在表格中insert插入<tr>,每次迴圈執行時都會新增一行放置新的音樂項目
+            let row=table.insertRow();
+            //會在剛剛插入的<tr>行中,新增<td>儲存格,儲存格堡存在cell的變數中
+            let cell1= row.insertCell(0);
+            // 0代表第一個儲存格 1代表第二格儲存格 2代表第三格儲存格,分別保存在不同的變數中。
+            let cell2= row.insertCell(1);
+            let cell3= row.insertCell(2);
+            let cell4= row.insertCell(3);
+            let cell5= row.insertCell(4);
+
+
+            cell1.innerHTML=`<img class="songimg" src="${item.musimg}" alt="音樂圖片" width="50" >`;
+            cell2.innerHTML=`<audio  class="audio-player" src="${item.mus}" controls></audio>`;
+            cell3.innerHTML=`<span class="fontsize">${item.songtl}</span>`;
+            cell4.innerHTML=`<span class="fontsize">${item.author}</span>`;
+            cell5.innerHTML=`<span class="fontsize">${item.time}</span>`;
+
+            
+            });
+        }
+        }
+     // 當網頁載入時，自動執行顯示資料的函式
+        window.onload=displayMusicData;
+
+
+    </script>
+
+</body>
+</html>
+

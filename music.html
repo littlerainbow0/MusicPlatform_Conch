@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MusicPlaylist|Conch</title>
+    <link rel="icon" href="./material/logo/conch.png" type="image/png">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script> -->
+    <style>
+        /* 標題列 */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 10px;
+            background-color: rgb(3, 13, 36) ; /* 可以根據需要更改背景顏色 */
+        }
+        .header img {
+          margin-left: 20px;
+          width: 100px;
+          height: auto;
+        /* 根據需要調整圖片高度 */
+        }
+        .header-right {
+            display: flex;
+            gap: 20px;
+        }
+        .header-right a {
+            text-decoration: none;
+            color: #fbf7f7; /* 可以根據需要更改文字顏色 */
+            font-size: 16px;
+        }
+    /* 輪播圖ｃｓｓ */
+        /* 確保圖片大小一致並覆蓋容器 */
+        .carousel-item img {
+            width: 100%; /* 讓圖片寬度填滿父容器 */
+            height: 60vh; /* 設定高度，這裡使用視窗高度的 60% */
+            object-fit: cover; /* 保持圖片比例並填滿框架 */
+        }
+        /* 設定 carousel-item 的滑動方向 */
+        .carousel-item-next,
+        .carousel-item-prev,
+        .carousel-item.active {
+            display: block;
+            transform: translate3d(0, 0, 0);
+            transition: transform 2.5s ease-in-out;
+            will-change: transform;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        /* 右到左滑動效果 */
+        .carousel-inner {
+            direction: rtl;
+        }
+        /* 控制左右切換的按鈕，隱藏但可點擊 */
+        .carousel-control-prev,
+        .carousel-control-next {
+            opacity: 0;
+            z-index: 1; /* 確保按鈕仍在圖片之上 */
+            width: 10%; /* 擴大按鈕可點擊區域 */
+        }
+
+    /* 最新音樂瀏覽列 */
+        
+        div.musicgallery img{
+            width:300px;
+            height: auto;
+        }
+        div.desc{
+            padding: 15px;
+            text-align: left;
+        }
+        div.desc2{
+            padding: 15px;
+            text-align: left;
+            color: #717171;
+        }
+        .responsive{
+            padding: 0 6px;
+            float: left;
+            width:24.99%
+        }
+        @media only screen and (max-width: 700px) {
+        .responsive {
+            width: 100%;
+            margin: 6px 0;
+        }
+        }
+
+        @media only screen and (max-width: 500px) {
+        .responsive {
+            width: 100%;
+        }
+        }
+
+        .clearfix:after {
+        content: "";
+        display: table;
+        clear: both;
+        }
+
+        .main-content{
+            flex:auto;
+            background: linear-gradient(rgba(84, 87, 92),rgba(3, 13, 36));
+            /* background-color:rgb(84, 87, 92); gba(36, 36, 3*/
+            color: white;
+        }
+      /* 海報牆寬度 */
+        .mainpost{
+          margin-left: 10%;
+          margin-right: 10%;
+        }
+    
+      /* 下方音樂播放器條 */
+      .music-bar {
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      background-color: #1c1d1e;
+      border-top: 1px solid #040303;
+      padding: 20px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      z-index: 1000;
+      display: none; /* Initially hidden */
+    }
+
+    .progress {
+      flex-grow: 1;
+      margin: 8px ;
+
+    }
+    /* 最新曲目圖片滾動列 */
+    .album-container {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none; /* Firefox */
+      -ms-overflow-style: none; /* IE 10+ */
+    }
+
+    .album-container::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
+    /* 最新曲目圖片滾動列-圖片 */
+    .album {
+      position: relative;
+      width: 200px;
+      flex: 0 0 auto;
+      margin: 10px;
+      cursor: pointer;
+      transition: border 0.3s;
+      scroll-snap-align: start;
+      text-align: center;
+    }
+
+    .album img {
+      width: 100%;
+      height: auto;
+    }
+    /* 最新曲目圖片滾動列-播放鍵icon */
+    .album:hover .play-icon {
+      display: flex;
+    }
+
+    .play-icon {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      width: 24px;
+      height: 24px;
+      background: rgba(128, 128, 128, 0.5);
+      border-radius: 50%;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .play-icon svg {
+      width: 16px;
+      height: 16px;
+      fill: white;
+    }
+    #play-pause-btn{
+      margin: 20px;
+      
+    }
+
+ 
+    .album-info {
+      margin-top: 10px;
+    }
+
+    .album-info h5,
+    .album-info p {
+      margin: 0;
+    }
+    /* 最新曲目圖片滾動列－滾動按鈕 */
+    .round15 {
+      border-radius: 15px; /* 照片圓角 你可以根據需要調整這個值 */
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .scroll-button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background-color: rgba(255, 255, 255, 0.8);
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scroll-button.left {
+      left: 0;
+    }
+
+    .scroll-button.right {
+      right: 0;
+    }
+
+    .scroll-button svg {
+      width: 20px;
+      height: 20px;
+      fill: black;
+    }
+    /* 照片海報牆 */
+    .musicbg {
+      background-size: cover; /* 使圖片覆蓋整個區塊 */
+      background-position: center; /* 圖片居中 */
+      background-repeat: no-repeat; /* 不重複圖片 */
+      
+    }
+    .folk {
+      background-image: url("material/img/postcard/Folk\ Music.png");
+    }
+    .world{
+      background-image: url("./material/img/postcard/World Music.png");
+    }
+    .classical{
+      background-image: url("./material/img/postcard/Classical Music.png");
+    }
+    .pop{
+      background-image: url('./material/img/postcard/PopMusic.png');
+    }
+    .rock{
+      background-image: url('./material/img/postcard/bg_slideshow5.gif'); 
+    }
+    .jazz{
+      background-image: url('./material/img/postcard/animationtunnelgreen.gif');
+    }
+    .electronic{
+      background-image: url('./material/img/postcard/Electronic Music.png');
+    }
+    .heavymetal{
+      background-image: url('./material/img/postcard/Heavy Metal Music.png');
+    }
+    .ambient{
+      background-image: url('./material/img/postcard/Ambient Music.png');
+    }
+
+    /* footer */
+    .footer{
+      position: relative;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      background-color:rgba(84, 87, 92) ;
+      color: white;
+      text-align: right;
+      padding: 50px;
+    }
+
+    .footertext{
+      display: flex;
+      gap: 15px;
+    }
+    .footertext a{
+      text-decoration: none;
+      color: white;
+    }
+    .footerow a{
+      text-decoration: none;
+      color: white;
+      margin: 8px;
+    }
+
+    </style>
+</head>
+<body>
+
+    <div class="header">
+            <div>
+                <img src="./material/logo/logo.png">
+            </div>
+            <div class="header-right">
+                <a href="#"></a>
+                <a href="./myfavorites.html">My Playlist</a>
+                <a href="#">Sign Up</a>
+                <a href="./login.html">Log in</a>
+            </div>
+    </div>
+
+<div class="main-content">
+<!-- 輪播圖 -->
+<div id="customCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="6000">
+  <div class="carousel-inner">
+      <div class="carousel-item active">
+        <a href="./login.html">
+          <img src="./material/img/bg/bg_slideshow01.png" class="d-block w-100" alt="Slide 1">
+        </a>
+      </div>
+      <div class="carousel-item">
+        <a href="#">
+          <img src="./material/img/bg/bg_slideshow02.png" class="d-block w-100" alt="Slide 2">
+        </a>
+      </div>
+      <div class="carousel-item">
+        <a href="#">
+          <img src="./material/img/bg/bg_slideshow03.png" class="d-block w-100" alt="Slide 3">
+        </a>
+      </div>
+      <div class="carousel-item">
+        <a href="#">
+          <img src="./material/img/bg/bg_slideshow04.png" class="d-block w-100" alt="Slide 4">
+        </a>
+      </div>
+      <div class="carousel-item">
+        <a href="https://www.youtube.com/watch?v=AH8b7EynJ60" target="_blank">
+          <img src="./material/img/bg/bg_slideshow05.png" class="d-block w-100" alt="Slide 4">
+        </a>
+    </div>
+    </div>
+  <!-- 控制左右切換的按鈕 -->
+  <button class="carousel-control-prev" type="button" data-bs-target="#customCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+  </button>
+  <button class="carousel-control-next" type="button" data-bs-target="#customCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+  </button>
+</div>
+
+<div class="clearfix"></div>
+<br><br>
+
+<!-- 最新曲目圖片滾動列 -->
+ <h3>Discover the lastest music</h3>
+<div class="album-carousel-container" style="position: relative;">
+    <button class="scroll-button left" onclick="scrollLeft()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+        <path d="M11.354 1.646a.5.5 0 0 1 0 .708L6.707 7l4.647 4.646a.5.5 0 0 1-.708.708l-5-5a.5.5 0 0 1 0-.708l5-5a.5.5 0 0 1 .708 0z" />
+      </svg>
+    </button>
+    <div class="album-container">
+      <div class="album" data-src="./material/music/Big Sky Elegy - National Sweetheart.mp3" data-title="Big Sky Elegy" data-artist="National Sweetheart">
+        <img src="./material/img/songcard/pop02.png" alt="Song 1" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>Big Sky Elegy</h5>
+          <p>National Sweetheart</p>
+        </div>
+      </div>
+      <div class="album" data-src="./material/music/In The Wild - National Sweetheart.mp3" data-title="In The Wild" data-artist="National Sweetheart">
+        <img src="./material/img/songcard/folk02.png" alt="In The Wild" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>In The Wild</h5>
+          <p>National Sweetheart</p>
+        </div>
+      </div>
+      <div class="album" data-src="./material/music/3 am West End.mp3" data-title="3 am West End" data-artist="statusq">
+        <img src="./material/img/songcard/Electronic01.png" alt="3 am West End" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>3 am West End</h5>
+          <p>statusq</p>
+        </div>
+      </div>
+      <div class="album" data-src="./material/music/In Dreams - Lish Grooves.mp3" data-title="In Dreams" data-artist="Lish Grooves">
+        <img src="./material/img/songcard/heavy01.png" alt="In Dreams" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>In Dreams</h5>
+          <p>Lish Grooves</p>
+        </div>
+      </div>
+      <div class="album" data-src="./material/music/Smoke - Lish Grooves.mp3" data-title="Smoke" data-artist="Lish Grooves">
+        <img src="./material/img/songcard/jazz01.png" alt="Smoke" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>Smoke</h5>
+          <p>Lish Grooves</p>
+        </div>
+      </div>
+      <div class="album" data-src="./material/music/Beat One.mp3" data-title="Beat One" data-artist="Kevin MacLeod">
+        <img src="./material/img/songcard/rock01.png" alt="Beat One" class="round15">
+        <div class="play-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+            <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+          </svg>
+        </div>
+        <div class="album-info">
+          <h5>Beat One</h5>
+          <p>Kevin MacLeod</p>
+        </div>
+      </div>
+      <!-- Add more album divs here -->
+    </div>
+    <button class="scroll-button right" onclick="scrollRight()">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+        <path d="M4.646 1.646a.5.5 0 0 1 .708 0l5 5a.5.5 0 0 1 0 .708l-5 5a.5.5 0 0 1-.708-.708L9.293 7.5 4.646 2.854a.5.5 0 0 1 0-.708z" />
+      </svg>
+    </button>
+</div>
+
+<audio id="audio" src=""></audio>
+
+<div class="clearfix"></div> 
+
+<!-- 音樂類型瀏覽照片海報 -->
+<main class="mainpost">
+  <div class="row align-items-md-stretch py-4">
+    <div class="col-md-4 py-4 ">
+      <div class="container-fluid py-5">
+        <p class="col-md-8 fs-4">Welcome to Conch</p>
+        <h1 class="display-5 fw-bold">Your music adventure starts now</h1>
+        <a class="btn btn-warning btn-lg" role="button" href="./login.html">Subscribe now</a>
+      </div>
+    </div>
+    <div class="col-md-8 py-4" >
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg folk" >
+        <h2>Folk</h2>
+        <p>Rural Everyday </p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+    
+  </div>
+  <!-- p是音樂類型抽象的提示關鍵字 -->
+  <div class="row align-items-md-stretch py-4">
+    <div class="col-md-6 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg world">
+        <h2>World</h2>
+        <p>Esteem Persuasion</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+    <div class="col-md-6 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg ambient">
+        <h2>Ambient</h2>
+        <p>Serenity Candid</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-md-stretch py-4">
+    <div class="col-md-5 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg jazz">
+        <h2>Jazz</h2>
+        <p>Resonance Gloss</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+    <div class="col-md-7 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg heavymetal">
+        <h2>HeavyMetal</h2>
+        <p>Unfiltered Edge</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-md-stretch py-4">
+    <div class="col-md-7 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg classical">
+        <h2>Classical</h2>
+        <p>Guidance Insight</p>
+        <a class="btn btn-outline-light" role="button" href="./classicmusic.html" >
+          Explore</a>
+      </div>
+    </div>
+    <div class="col-md-5 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg electronic">
+        <h2>Electronic</h2>
+        <p>Pixel Wit</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+  </div>
+  <div class="row align-items-md-stretch py-4">
+    <div class="col-md-6 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg pop">
+        <h2>Pop</h2>
+        <p> Bright Sleek </p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+    <div class="col-md-6 py-4">
+      <div class="h-100 p-5 text-bg-dark rounded-3 musicbg rock">
+        <h2>Rock</h2>
+        <p>Hype HushedMono</p>
+        <button class="btn btn-outline-light" type="button">Explore</button>
+      </div>
+    </div>
+  </div> 
+</main>
+
+<!-- 下方音樂播放器條 -->
+<div class="music-bar" id="music-bar">
+    <div class="current-song">
+      <span id="song-title">Song Title</span> - <span id="song-artist">Artist</span>
+    </div>
+    <button id="play-pause-btn" class="btn btn-link p-0 text-light">
+      <svg id="play-icon" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-play-circle-fill" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.79 5.093A.5.5 0 0 0 6 5.5v5a.5.5 0 0 0 .79.407l3.5-2.5a.5.5 0 0 0 0-.814z"/>
+      </svg>
+      <svg id="pause-icon" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" class="bi bi-pause-circle-fill" viewBox="0 0 16 16">
+        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0M6.25 5C5.56 5 5 5.56 5 6.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C7.5 5.56 6.94 5 6.25 5m3.5 0c-.69 0-1.25.56-1.25 1.25v3.5a1.25 1.25 0 1 0 2.5 0v-3.5C11 5.56 10.44 5 9.75 5"/>
+      </svg>
+      
+    </button>
+    <div class="progress-container">
+      <div class="progress-bar" id="progress-bar"></div>
+  </div>
+    <input type="range" class="progress" id="progress" value="0">
+  </div>
+
+<footer class="footer">
+  <!-- footer -->
+  <table>
+    <tr class="footertext">
+      <td><a href="#">About us</a></td>
+      <td><a href="#">Musicsian</a></td>
+      <td><a href="#">Artist</td>
+      <td><a href="#">Advertise</a></td>
+      <td><a href="#">Premium Plan</a></td>
+      <td><a href="#">Family Plan</a></td>
+      <td></td>
+    </tr>
+  </table>
+  <div class="footerow">
+    <a href="http://www.instagram.com" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-instagram" viewBox="0 0 16 16">
+        <path d="M8 0C5.829 0 5.556.01 4.703.048 3.85.088 3.269.222 2.76.42a3.9 3.9 0 0 0-1.417.923A3.9 3.9 0 0 0 .42 2.76C.222 3.268.087 3.85.048 4.7.01 5.555 0 5.827 0 8.001c0 2.172.01 2.444.048 3.297.04.852.174 1.433.372 1.942.205.526.478.972.923 1.417.444.445.89.719 1.416.923.51.198 1.09.333 1.942.372C5.555 15.99 5.827 16 8 16s2.444-.01 3.298-.048c.851-.04 1.434-.174 1.943-.372a3.9 3.9 0 0 0 1.416-.923c.445-.445.718-.891.923-1.417.197-.509.332-1.09.372-1.942C15.99 10.445 16 10.173 16 8s-.01-2.445-.048-3.299c-.04-.851-.175-1.433-.372-1.941a3.9 3.9 0 0 0-.923-1.417A3.9 3.9 0 0 0 13.24.42c-.51-.198-1.092-.333-1.943-.372C10.443.01 10.172 0 7.998 0zm-.717 1.442h.718c2.136 0 2.389.007 3.232.046.78.035 1.204.166 1.486.275.373.145.64.319.92.599s.453.546.598.92c.11.281.24.705.275 1.485.039.843.047 1.096.047 3.231s-.008 2.389-.047 3.232c-.035.78-.166 1.203-.275 1.485a2.5 2.5 0 0 1-.599.919c-.28.28-.546.453-.92.598-.28.11-.704.24-1.485.276-.843.038-1.096.047-3.232.047s-2.39-.009-3.233-.047c-.78-.036-1.203-.166-1.485-.276a2.5 2.5 0 0 1-.92-.598 2.5 2.5 0 0 1-.6-.92c-.109-.281-.24-.705-.275-1.485-.038-.843-.046-1.096-.046-3.233s.008-2.388.046-3.231c.036-.78.166-1.204.276-1.486.145-.373.319-.64.599-.92s.546-.453.92-.598c.282-.11.705-.24 1.485-.276.738-.034 1.024-.044 2.515-.045zm4.988 1.328a.96.96 0 1 0 0 1.92.96.96 0 0 0 0-1.92m-4.27 1.122a4.109 4.109 0 1 0 0 8.217 4.109 4.109 0 0 0 0-8.217m0 1.441a2.667 2.667 0 1 1 0 5.334 2.667 2.667 0 0 1 0-5.334"/>
+      </svg>
+    </a>
+    <a href="https://www.threads.net/" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-threads" viewBox="0 0 16 16">
+        <path d="M6.321 6.016c-.27-.18-1.166-.802-1.166-.802.756-1.081 1.753-1.502 3.132-1.502.975 0 1.803.327 2.394.948s.928 1.509 1.005 2.644q.492.207.905.484c1.109.745 1.719 1.86 1.719 3.137 0 2.716-2.226 5.075-6.256 5.075C4.594 16 1 13.987 1 7.994 1 2.034 4.482 0 8.044 0 9.69 0 13.55.243 15 5.036l-1.36.353C12.516 1.974 10.163 1.43 8.006 1.43c-3.565 0-5.582 2.171-5.582 6.79 0 4.143 2.254 6.343 5.63 6.343 2.777 0 4.847-1.443 4.847-3.556 0-1.438-1.208-2.127-1.27-2.127-.236 1.234-.868 3.31-3.644 3.31-1.618 0-3.013-1.118-3.013-2.582 0-2.09 1.984-2.847 3.55-2.847.586 0 1.294.04 1.663.114 0-.637-.54-1.728-1.9-1.728-1.25 0-1.566.405-1.967.868ZM8.716 8.19c-2.04 0-2.304.87-2.304 1.416 0 .878 1.043 1.168 1.6 1.168 1.02 0 2.067-.282 2.232-2.423a6.2 6.2 0 0 0-1.528-.161"/>
+      </svg>
+    </a>
+    <a href="http://www.facebook.com" target="_blank">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-facebook" viewBox="0 0 16 16">
+       <path d="M16 8.049c0-4.446-3.582-8.05-8-8.05C3.58 0-.002 3.603-.002 8.05c0 4.017 2.926 7.347 6.75 7.951v-5.625h-2.03V8.05H6.75V6.275c0-2.017 1.195-3.131 3.022-3.131.876 0 1.791.157 1.791.157v1.98h-1.009c-.993 0-1.303.621-1.303 1.258v1.51h2.218l-.354 2.326H9.25V16c3.824-.604 6.75-3.934 6.75-7.951"/>
+     </svg>
+    </a>
+  </div>
+  <hr>
+    <p>© 2024 Conch | MusicPlayStation</p>
+</footer>
+    
+    <script>
+    //下方音樂播放器條
+    const albums = document.querySelectorAll('.album');
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('play-pause-btn');
+    const playIcon = document.getElementById('play-icon');
+    const pauseIcon = document.getElementById('pause-icon');
+    const progress = document.getElementById('progress');
+    const musicBar = document.getElementById('music-bar');
+    const songTitle = document.getElementById('song-title');
+    const songArtist = document.getElementById('song-artist');
+    let currentAlbum = null;
+
+    albums.forEach(album => {
+      album.addEventListener('click', function () {
+        const src = this.getAttribute('data-src');
+        const title = this.getAttribute('data-title');
+        const artist = this.getAttribute('data-artist');
+        if (currentAlbum !== album) {
+          audio.src = src;
+          songTitle.textContent = title;
+          songArtist.textContent = artist;
+          currentAlbum = album;
+        }
+        audio.play();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'inline';
+        musicBar.style.display = 'flex';
+      });
+    });
+
+    playPauseBtn.addEventListener('click', function () {
+      if (audio.paused) {
+        audio.play();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'inline';
+      } else {
+        audio.pause();
+        playIcon.style.display = 'inline';
+        pauseIcon.style.display = 'none';
+      }
+    });
+
+    audio.addEventListener('timeupdate', function () {
+      const value = (audio.currentTime / audio.duration) * 100;
+      progress.value = value;
+    });
+
+    progress.addEventListener('input', function () {
+      const time = (progress.value / 100) * audio.duration;
+      audio.currentTime = time;
+    });
+
+    function scrollLeft() {
+      const albumContainer = document.querySelector('.album-container');
+      albumContainer.scrollBy({
+        top: 0,
+        left: -200,
+        behavior: 'smooth'
+      });
+    }
+
+    function scrollRight() {
+      const albumContainer = document.querySelector('.album-container');
+      albumContainer.scrollBy({
+        top: 0,
+        left: 200,
+        behavior: 'smooth'
+      });
+    }
+  
+    </script>
+    <!-- bs5.2.3版本輪播用到 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+</body> 
+</body>
+</html>
